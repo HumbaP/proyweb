@@ -8,10 +8,27 @@ namespace Mudanzas.Models
 {
     public class Autenticacion {
         [Required]
-        public string username { get; set; }
+        private string username { get; set; }
         [Required]
-        public string password { get; set; }
+        private string password { get; set; }
 
-      
+        public string getUsername()
+        {
+            return this.username;
+        }
+        public void setUsername(string username)
+        {
+            this.username = username;
+        }
+
+        public string getPassword()
+        {
+            return this.password;
+        }
+
+        public void setPassword(string password)
+        {
+            this.password = password;
+        }
     }
 }

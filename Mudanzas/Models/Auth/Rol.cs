@@ -7,8 +7,8 @@ namespace Mudanzas.Models.Auth
 {
     public static class Rol
     {
-        public const string Admin = "Admin";
-        public const string Chofer = "Chofer";
-        public const string Cliente = "Cliente";
+        private const string Admin = "Admin";
+        private const string Chofer = "Chofer";
+        private const string Cliente = "Cliente";
     }
 }
