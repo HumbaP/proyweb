@@ -18,13 +18,13 @@ namespace Mudanzas.Models
             this.tipoSede = tipoSede;
             this.pertenece = pertenece;
         }
-        public int id { get; set; }
-        public string alias { get; set; }
-        public string ciudad { get; set; }
-        public string estado { get; set; }
-        public double latitud { get; set; }
-        public double longitud { get; set; }
-        public string tipoSede { get; set; }
-        public int pertenece { get; set; }
+        private int id { get; set; }
+        private string alias { get; set; }
+        private string ciudad { get; set; }
+        private string estado { get; set; }
+        private double latitud { get; set; }
+        private double longitud { get; set; }
+        private string tipoSede { get; set; }
+        private int pertenece { get; set; }
     }
 }

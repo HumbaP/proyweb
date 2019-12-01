@@ -18,14 +18,14 @@ namespace Mudanzas.Models
             this.volumen = volumen;
             this.placas = placas;
         }
-        public string id { get; set; }
-        public decimal kilometraje { get; set; }
-        public decimal kilometrajeUltimoServicio { get; set; }
-        public decimal capacidadPeso { get; set; }
-        public string tipoCamion { get; set; }
-        public string tipoCombustible { get; set; }
-        public decimal volumen { get; set; }
-        public string placas { get; set; }
+        private string id { get; set; }
+        private decimal kilometraje { get; set; }
+        private decimal kilometrajeUltimoServicio { get; set; }
+        private decimal capacidadPeso { get; set; }
+        private string tipoCamion { get; set; }
+        private string tipoCombustible { get; set; }
+        private decimal volumen { get; set; }
+        private string placas { get; set; }
 
     }
 }

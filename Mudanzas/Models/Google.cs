@@ -8,9 +8,9 @@ namespace Mudanzas.Models
     public class Google
     {
      
-        public string destination_addresses { get; set; }
-        public string origin_addresses { get; set; }
-        public string rows { get; set; }
+        private string destination_addresses { get; set; }
+        private string origin_addresses { get; set; }
+        private string rows { get; set; }
 
 
     }
