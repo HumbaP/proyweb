@@ -44,6 +44,14 @@ namespace Mudanzas.Controllers
             }
             return Unauthorized();
         }
+
+        [HttpPost("/admin/registro")]
+        public async Task<ActionResult<Administrador>> RegistrarAdmin([FromBody] RegistroAdminRequest registroRequest)
+        {
+            Administrador admin = modelo.RegistrarAdmin(registroRequest);
+            return admin;
+        }
+
         [HttpPost("/cliente/login")]
         public async Task<ActionResult<LoginResponse>> DoClienteLogin([FromBody]LoginRequest login)
         {
@@ -70,19 +78,47 @@ namespace Mudanzas.Controllers
             return cliente;
         }
 
+
+        //[Authorize(Roles = Rol.Admin)]
         [HttpPost("/cliente/registro")]
         public async Task<ActionResult<Usuario>> RegistrarCliente([FromBody] HacerClienteRequest clienteRequest)
         {
-            Cliente cliente = new Cliente();
-            return cliente;
+
+            Cliente cliente = null;
+            cliente = modelo.RegistrarCliente(clienteRequest.prospectoId);
+            if (cliente != null)
+            {
+                //Enviar correo
+
+                return cliente;
+            }
+            return BadRequest();
+        }
+
+        [HttpPost("/usuario/cambiarpassword")]
+        public async Task<ActionResult<Usuario>> CambiarPassword([FromBody] CambiarPasswordRequest cambiarPasswordRequest)
+        {
+            Usuario user = modelo.CambiarPassword(cambiarPasswordRequest.password, cambiarPasswordRequest.token);
+            if (user != null)
+                return user;
+            return Unauthorized();
+        }
+
+        [HttpPost("/usuario/olvidopassword")]
+        public async Task<ActionResult<Usuario>> OlvidoPassword([FromBody] OlvidoPasswordRequest olvidoPasswordRequest)
+        {
+            modelo.OlvidoPassword(olvidoPasswordRequest.correoElectronico);
+            return new Chofer();
         }
 
         [HttpPost("/send")]
         public async Task<ActionResult<string>> EnviarCorreo()
         {
-            EmailHelper.sendEmail("manuelvillegasley@gmail.com", "Manuel Villegas el guapo");
+  //          Templates.UsuarioEmailTemplate.bienvenidoProspecto(nombre, numeroVerificacion, "http://www.proyweb.com.mx");
+//            EmailHelper.sendEmail("manuelvillegasley@gmail.com", "Manuel Villegas el guapo",email);
             return "";
         }
+
     }
 
 

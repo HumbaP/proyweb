@@ -2,6 +2,7 @@
 using Mudanzas.Services.IServices;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
@@ -44,7 +45,7 @@ namespace Mudanzas.Data
                     if (reader.HasRows)
                     {
                         reader.Read();
-                        int id = reader.GetInt32(0);
+                        string id = reader.GetString(0);
                         string nombre = reader.GetString(1);
                         string primerApellido = reader.GetString(2);
                         string segundoApellido = reader.GetString(3);
@@ -76,7 +77,7 @@ namespace Mudanzas.Data
                     if (reader.HasRows)
                     {
                         reader.Read();
-                        int id = reader.GetInt32(0);
+                        string id = reader.GetString(0);
                         string nombre = reader.GetString(1);
                         string primerApellido = reader.GetString(2);
                         string segundoApellido = reader.GetString(3);
@@ -111,7 +112,7 @@ namespace Mudanzas.Data
                     if (reader.HasRows)
                     {
                         reader.Read();
-                        int id = reader.GetInt32(0);
+                        string id = reader.GetString(0);
                         string nombre = reader.GetString(1);
                         string primerApellido = reader.GetString(2);
                         string segundoApellido = reader.GetString(3);
@@ -159,11 +160,92 @@ namespace Mudanzas.Data
             return cliente;
         }
 
-        public Usuario RegistrarChofer(Chofer chofer)
+        public Usuario RegistrarChofer(Chofer usuario)
         {
-            //TODO: Implementar esto
-            //string query 
-            throw new NotImplementedException();
+            string query = "registraUsuarios";
+            using (SqlCommand com = new SqlCommand(query, db))
+            {
+                com.CommandType = CommandType.StoredProcedure;
+                com.Parameters.Add(new SqlParameter("@nombre", usuario.getNombre()));
+                com.Parameters.Add(new SqlParameter("@primerApellido", usuario.getPrimerApellido()));
+                com.Parameters.Add(new SqlParameter("@segundoApellido", usuario.getSegundoApellido()));
+                com.Parameters.Add(new SqlParameter("@contraseña", usuario.getPassword()));
+                com.Parameters.Add(new SqlParameter("@telefono", usuario.getTelefono()));
+                com.Parameters.Add(new SqlParameter("@correoElectronico", usuario.getCorreoElectronico()));
+                com.Parameters.Add(new SqlParameter("@tipo", "CH"));
+                com.ExecuteNonQuery();
+                db.Close();
+            }
+            return usuario;
         }
+
+
+        public Usuario RegistrarAdmin(Administrador usuario)
+        {
+            string query = "registraUsuarios";
+            using (SqlCommand com = new SqlCommand(query, db))
+            {
+                com.CommandType = CommandType.StoredProcedure;
+                com.Parameters.Add(new SqlParameter("@nombre", usuario.getNombre()));
+                com.Parameters.Add(new SqlParameter("@primerApellido", usuario.getPrimerApellido()));
+                com.Parameters.Add(new SqlParameter("@segundoApellido", usuario.getSegundoApellido()));
+                com.Parameters.Add(new SqlParameter("@contraseña", usuario.getPassword()));
+                com.Parameters.Add(new SqlParameter("@telefono",  usuario.getTelefono()));
+                com.Parameters.Add(new SqlParameter("@correoElectronico", usuario.getCorreoElectronico()));
+                com.Parameters.Add(new SqlParameter("@tipo", "AD"));
+                com.ExecuteNonQuery();
+                db.Close();
+            }
+            return usuario;
+        }
+
+
+        public Cliente MoverProspectoACliente(int prospectoId)
+        {
+            Cliente c = new Cliente();
+            using (SqlCommand com = new SqlCommand("altaClientes", db))
+            {
+                //TODO: Verificar si existe (regresar algo para saber si hizo el cambio o no)
+                com.CommandType = CommandType.StoredProcedure;
+                com.Parameters.Add(new SqlParameter("@idProspecto", prospectoId));
+                var f = com.ExecuteNonQuery();
+                //TODO: Hacer la validacion si se hizo correctamente
+                db.Close();
+            }
+
+            return c;
+        }
+
+        public Usuario CambiarPassword(string password, string token)
+        {
+            //TODO: Modificar el regreso
+            string query = "SP_ChangePass";
+            using (SqlCommand com = new SqlCommand(query, db))
+            {
+                com.CommandType = CommandType.StoredProcedure;
+                com.Parameters.Add(new SqlParameter("@password", password));
+                com.Parameters.Add(new SqlParameter("@token", token));
+                com.ExecuteNonQuery();
+                db.Close();
+            }
+            return null;
+        }
+
+        public Usuario OlvidoPassword(string correoElectronico, string token)
+        {
+
+            string query = "SP_OlvidoPass";
+            using (SqlCommand com = new SqlCommand(query, db))
+            {
+                com.CommandType = CommandType.StoredProcedure;
+                com.Parameters.Add(new SqlParameter("@correoElectronico", correoElectronico));
+                com.Parameters.Add(new SqlParameter("@token", token));
+                com.ExecuteNonQuery();
+                db.Close();
+            }
+            //TODO: Modificar el regreso
+            return null;
+        }
+
     }
 }

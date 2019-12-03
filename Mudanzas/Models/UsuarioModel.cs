@@ -6,7 +6,11 @@ using Mudanzas.Helpers.Requests;
 using Mudanzas.Services.IServices;
 using Mudanzas.Data;
 using Mudanzas.Helpers;
+<<<<<<< HEAD
 using Mudanzas.Models;
+=======
+using Mudanzas.Helpers.Templates;
+>>>>>>> Agregado template de correos
 
 namespace Mudanzas.Models
 {
@@ -35,9 +39,9 @@ namespace Mudanzas.Models
         public Chofer RegistrarChofer(RegistroChoferRequest choferRequest)
         {
             //TODO: Checar esto
-            Chofer chofer = new Chofer();
+            Chofer chofer = new Chofer(choferRequest.nombre, choferRequest.primerApellido, choferRequest.segundoApellido, choferRequest.telefono, choferRequest.correoElectronico, EncryptHelper.encryptString(choferRequest.password));
             db.RegistrarChofer(chofer);
-            return null;
+            return chofer;
         }
 
         public Usuario AutenticarCliente(LoginRequest usuarioLogin)
@@ -61,12 +65,26 @@ namespace Mudanzas.Models
             return null;
         }
 
+        public Administrador RegistrarAdmin(RegistroAdminRequest adminRequest) {
+            Administrador admin = new Administrador(adminRequest.nombre, adminRequest.primerApellido, adminRequest.segundoApellido, adminRequest.telefono, adminRequest.correoElectronico, adminRequest.idSede, EncryptHelper.encryptString(adminRequest.password));
+            db.RegistrarAdmin(admin);
+            return admin;
+        }
+
+
+        public Cliente RegistrarCliente(int idProspecto)
+        {
+            Cliente c = db.MoverProspectoACliente(idProspecto);
+            return c;
+        }
         public Cliente RegistrarNuevoCliente(RegistroRequest registro)
         {
             //TODO: modificarle parametros
             Cliente nuevoCliente= new Cliente(registro.nombre, registro.primerApellido, registro.segundoApellido, registro.telefono, registro.correoElectronico, registro.direccion, $"{new Random().Next(10000000, 99999999)}");
             db.RegistrarProspecto(nuevoCliente);
-            EmailHelper.sendSMSCodigoVerificacion(nuevoCliente.getTelefono(), nuevoCliente.getToken());
+            string email =  UsuarioEmailTemplate.bienvenidoProspecto($"{nuevoCliente.getNombre()} {nuevoCliente.getPrimerApellido()}", nuevoCliente.getToken(), "http://www.proyweb.com.mx");
+            EmailHelper.sendEmail(nuevoCliente.getCorreoElectronico(), $"{nuevoCliente.getNombre()} {nuevoCliente.getPrimerApellido()}", email);
+            // EmailHelper.sendSMSCodigoVerificacion(nuevoCliente.getTelefono(), nuevoCliente.getToken());
             return nuevoCliente;
         }
         public Cliente VerificarProspecto(string codigoVerificacion)
@@ -76,6 +94,25 @@ namespace Mudanzas.Models
             prospecto.setToken(codigoVerificacion);
             db.VerificacionProspecto(prospecto);
             return prospecto;
+        }
+
+        public Usuario CambiarPassword(string password, string token)
+        {
+            //TODO: Implementarlo bien, no jalla el CheckJWT
+            if (JWTHelper.CheckJWT(token))
+            {
+                Usuario usuario = db.CambiarPassword(EncryptHelper.encryptString(password), token);
+                return usuario;
+            }
+
+            return null;
+        }
+
+        public void OlvidoPassword(string correoElectronico)
+        {
+            string token = JWTHelper.convertTokenUrl(correoElectronico);
+            db.OlvidoPassword(correoElectronico, token);
+            
         }
     }
 }
