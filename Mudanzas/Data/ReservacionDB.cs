@@ -6,62 +6,15 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using Mudanzas.Models;
+using Mudanzas.Helpers.Requests;
 
 namespace Mudanzas.Data
 {
-    public class ReservacionDB: IReservacionDB
+    public class ReservacionDB
     {
         public readonly SqlConnection db = ConexionDB.GetConnection();
 
-        public List<Reservacion> GetReservaciones()
-        {
-            //TODO: Obtener todas las Sedes
-            //Sede sede = List<Sede>;
-            List<Reservacion> reservaciones = new List<Reservacion>();
-            using (SqlCommand com = new SqlCommand($"SELECT * FROM Reservacion", db))
-            {
-                SqlDataReader reader = com.ExecuteReader();
-                if (reader.HasRows)
-                {
-                    while (reader.Read())
-                    {
-                        int folio = reader.GetInt32(0);
-                        string sedeOrigen= reader.GetString(1);
-                        string sedeDestino = reader.GetString(2);
-                        string fechaReservacion= reader.GetString(3);
-                        string tipoCamion= reader.GetString(4);
-                        string idCliente= reader.GetString(5);
-                        reservaciones.Add(new Reservacion(folio,sedeOrigen,sedeDestino,fechaReservacion,tipoCamion,idCliente));
-                    }
-                }
-                reader.Close();
-            }
-            return reservaciones;
-        }
-
-        public List<Reservacion> GetReservacionesPendientes()
-        {
-            List<Reservacion> reservaciones = new List<Reservacion>();
-            using (SqlCommand com = new SqlCommand($"SELECT s.folio, s.sedeOrigen, s.sedeDestino, s.fechaReservacion, s.tipoCamion, s.idCliente FROM Sede s", db))
-            {
-                SqlDataReader reader = com.ExecuteReader();
-                if (reader.HasRows)
-                {
-                    while (reader.Read())
-                    {
-                        int folio = reader.GetInt32(0);
-                        string sedeOrigen = reader.GetString(1);
-                        string sedeDestino = reader.GetString(2);
-                        string fechaReservacion = reader.GetString(3);
-                        string tipoCamion = reader.GetString(4);
-                        string idCliente = reader.GetString(5);
-                        reservaciones.Add(new Reservacion(folio, sedeOrigen, sedeDestino, fechaReservacion, tipoCamion, idCliente));
-                    }
-                }
-                reader.Close();
-            }
-            return reservaciones;
-        }
+       
 
         // POST/ID reservacion
         public void postExceso(int folio)
@@ -82,6 +35,7 @@ namespace Mudanzas.Data
      
              return "GDE0001";
         }
+        // GET COSTO
         public double getCosto(int idSedeOrigen, int idSedeDestino)
         {
             //distancia = sp
@@ -104,6 +58,34 @@ namespace Mudanzas.Data
          
             return distancia * ((double) costo);
         }
+        public void guardarReservacion(ReservacionRequest reservacion)
+        {
+              
+            string query = $"registraReserva '{reservacion.sedeOrigen}','{reservacion.sedeDestino}','04/12/2019', '{reservacion.tipoCamion}','{reservacion.idCliente}'";
+            using (SqlCommand com = new SqlCommand(query, db))
+            {
+                com.ExecuteNonQuery();
+                db.Close();
+            }
+        
+        // Ya que se ejecuta el sp y listo
+
+        }
+
+       // public void realizaCargo(Pago pago)
+        //{
+            /* 
+            string query = $"SP_ALTAPAGOS '{pago.folio}',{pago.monto}, {pago.terminacionTarjeta}, '{pago.estatus}',{pago.fecha}'";
+            using (SqlCommand com = new SqlCommand(query, db))
+            {
+                com.ExecuteNonQuery();
+                db.Close();
+            }
+        */
+        // Ya que se ejecuta el sp y listo
+
+
+        //}
 
 
     }

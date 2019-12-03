@@ -25,12 +25,6 @@ namespace Mudanzas.Models
             bd.postExceso(folioReservacion);
         }
 
-        public List<Reservacion> obtenerReservaciones()
-        {
-            List<Reservacion> reservaciones = bd.GetReservaciones();
-            
-            return reservaciones;
-        }
 
         public double especificaReservacion(ReservacionRequest informacion)
         {
@@ -40,9 +34,19 @@ namespace Mudanzas.Models
             {
                 //precio = bd.getCosto(informacion.sedeOrigen,informacion.sedeDestino);
                 precio = bd.getCosto(1,2);
-
             }
             return precio;
         }
+        public void ingresarReserva(ReservacionRequest reservacion)
+        {
+            bd.guardarReservacion(reservacion);
+        }
+
+/*
+        public void pagaReservacion(PagoRequest pago)
+        {
+            bd.realizaCargo(new Pago(pago.folio,pago.monto,pago.terminacionTarjeta,"Pagado",pago.fecha));
+        }
+*/
     }
 }

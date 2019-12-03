@@ -9,16 +9,16 @@ namespace Mudanzas.Models
     public class Reservacion
     {
 
-        private int folio { get; set; }
+        
         private string sedeOrigen { get; set; }
         private string sedeDestino { get; set; }
         private DateTime fechaReservacion { get; set; }
         private string tipoCamion { get; set; }
         private string idCliente { get; set; }
 
-        public Reservacion(int folio, string sedeOrigen, string sedeDestino, string fechaReservacion, string tipoCamion, string idCliente)
+        public Reservacion(string sedeOrigen, string sedeDestino, string fechaReservacion, string tipoCamion, string idCliente)
         {
-            this.setFolio(folio);
+           
             this.setSedeDestino(sedeDestino);
             this.setSedeOrigen(sedeOrigen);
             //TODO: Podria tener error
@@ -28,14 +28,6 @@ namespace Mudanzas.Models
         }
 
 
-        public int getFolio()
-        {
-            return this.folio ;
-        }
-        public void setFolio(int folio)
-        {
-            this.folio = folio;
-        }
 
         public string getSedeOrigen()
         {

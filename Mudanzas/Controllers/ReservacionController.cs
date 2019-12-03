@@ -1,14 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
 using Mudanzas.Helpers.Requests;
 using Mudanzas.Models;
-using Mudanzas.Models.Auth;
-using Newtonsoft.Json.Linq;
-using Mudanzas.Helpers;
 
 namespace Mudanzas.Controllers
 {
@@ -29,25 +23,33 @@ namespace Mudanzas.Controllers
             return excesoRequest;
          }
 
-        /*
-         [HttpGet]
-        public List<Reservacion> obtenerReservaciones()
-        {
-            return modelo.obtenerReservaciones();
-        }
-        */
-        [HttpGet]
-        public string reservacion()
-        {
-            return "Hola paps";
-        }
-
+        
+        
         
          [HttpPost("disponible")]
          public double especificaReservacion([FromBody] ReservacionRequest informacionReserva)
          {
             return modelo.especificaReservacion(informacionReserva);
          }
+
+         // POST Crear la reservacion
+         [HttpPost]
+         public ReservacionRequest ingresarDatosReservacion([FromBody] ReservacionRequest informacionReserva)
+         {
+            modelo.ingresarReserva(informacionReserva);
+            return informacionReserva;
+         }
+
+/*
+        [HttpPost("pago")]
+         public PagoRequest ingresarDatosPago([FromBody] PagoRequest informacionPago)
+         {
+            modelo.pagaReservacion(informacionPago);
+            return informacionPago;
+         }
+*/
+
+
 
     }
 }
