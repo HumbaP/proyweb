@@ -22,20 +22,32 @@ namespace Mudanzas.Controllers
             modelo = new ModeloReservacion();
         }
         // POST: api/Reservacion
-         [HttpPost]
-         public ExcesoRequest postExceso([FromBody]ExcesoRequest folio)
+         [HttpPost("exceso")]
+         public ExcesoRequest postExceso([FromBody]ExcesoRequest excesoRequest)
          {
-            modelo.postExceso(folio);
-            return folio;
+            modelo.postExceso(excesoRequest.folio);
+            return excesoRequest;
          }
-        [HttpGet]
-        public string postExceso()
+
+        /*
+         [HttpGet]
+        public List<Reservacion> obtenerReservaciones()
         {
-            return "holi";
+            return modelo.obtenerReservaciones();
+        }
+        */
+        [HttpGet]
+        public string reservacion()
+        {
+            return "Hola paps";
         }
 
-
-
+        
+         [HttpPost("disponible")]
+         public double especificaReservacion([FromBody] ReservacionRequest informacionReserva)
+         {
+            return modelo.especificaReservacion(informacionReserva);
+         }
 
     }
 }

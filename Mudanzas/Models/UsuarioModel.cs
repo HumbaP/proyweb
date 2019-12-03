@@ -6,11 +6,8 @@ using Mudanzas.Helpers.Requests;
 using Mudanzas.Services.IServices;
 using Mudanzas.Data;
 using Mudanzas.Helpers;
-<<<<<<< HEAD
 using Mudanzas.Models;
-=======
 using Mudanzas.Helpers.Templates;
->>>>>>> Agregado template de correos
 
 namespace Mudanzas.Models
 {
@@ -24,9 +21,9 @@ namespace Mudanzas.Models
             db = new UsuarioDB();
         }
         //TODO: Agregar encriptado a las contrasenas
-        public Usuario AutenticarChofer(LoginRequest usuarioLogin)
+        public Usuario AutenticarChofer(string correoElectronico, string password)
         {
-            Chofer chofer = db.AutorizarChofer(usuarioLogin.correoElectronico, usuarioLogin.password);
+            Chofer chofer = db.AutorizarChofer(correoElectronico, EncryptHelper.encryptString(password));
             if (chofer != null)
             {
                 chofer.setToken(JWTHelper.convertoUsuarioToJWT(chofer));
@@ -36,17 +33,23 @@ namespace Mudanzas.Models
             return null;
         }
 
-        public Chofer RegistrarChofer(RegistroChoferRequest choferRequest)
+        public List<Prospecto> GetProspectos()
+        {
+            List<Prospecto> prospectos = db.GetProspectos();
+            return prospectos;
+        }
+
+        public Chofer RegistrarChofer(string nombre, string primerApellido, string segundoApellido, string telefono, string correoElectronico, string password)
         {
             //TODO: Checar esto
-            Chofer chofer = new Chofer(choferRequest.nombre, choferRequest.primerApellido, choferRequest.segundoApellido, choferRequest.telefono, choferRequest.correoElectronico, EncryptHelper.encryptString(choferRequest.password));
+            Chofer chofer = new Chofer(nombre, primerApellido, segundoApellido, telefono, correoElectronico, EncryptHelper.encryptString(password));
             db.RegistrarChofer(chofer);
             return chofer;
         }
 
-        public Usuario AutenticarCliente(LoginRequest usuarioLogin)
+        public Usuario AutenticarCliente(string correoElectronico, string password)
         {
-            Cliente cliente= db.AutorizarCliente(usuarioLogin.correoElectronico, usuarioLogin.password);
+            Cliente cliente= db.AutorizarCliente(correoElectronico, EncryptHelper.encryptString(password));
             if (cliente != null)
             {
                 cliente.setToken(JWTHelper.convertoUsuarioToJWT(cliente));
@@ -55,9 +58,9 @@ namespace Mudanzas.Models
             return null;
         }
 
-        public Usuario AutenticarAdmin(LoginRequest usuarioLogin)
+        public Usuario AutenticarAdmin(string correoElectronico, string password)
         {
-            Administrador admin= db.AutorizarAdministrador(usuarioLogin.correoElectronico, usuarioLogin.password);
+            Administrador admin= db.AutorizarAdministrador(correoElectronico, EncryptHelper.encryptString(password));
             if(admin!=null){
                 admin.setToken(JWTHelper.convertoUsuarioToJWT(admin));
                 return admin;
@@ -65,27 +68,34 @@ namespace Mudanzas.Models
             return null;
         }
 
-        public Administrador RegistrarAdmin(RegistroAdminRequest adminRequest) {
-            Administrador admin = new Administrador(adminRequest.nombre, adminRequest.primerApellido, adminRequest.segundoApellido, adminRequest.telefono, adminRequest.correoElectronico, adminRequest.idSede, EncryptHelper.encryptString(adminRequest.password));
+        public Administrador RegistrarAdmin(string nombre, string primerApellido, string segundoApellido, string telefono, string correoElectronico, string idSede, string password) {
+            Administrador admin = new Administrador(nombre, primerApellido, segundoApellido, telefono, correoElectronico, idSede, EncryptHelper.encryptString(password));
             db.RegistrarAdmin(admin);
             return admin;
         }
 
 
-        public Cliente RegistrarCliente(int idProspecto)
+        public Cliente RegistrarCliente(int idProspecto, bool aceptado)
         {
-            Cliente c = db.MoverProspectoACliente(idProspecto);
+            Cliente c = db.MoverProspectoACliente(idProspecto,aceptado);
+            if (c!=null && c.getCorreoElectronico()!=null)
+            {
+                string token = JWTHelper.convertTokenUrl(c.getCorreoElectronico());
+                db.OlvidoPassword(c.getCorreoElectronico(), token);
+                string nombre = $"{c.getNombre()} {c.getPrimerApellido()}";
+                EmailHelper.sendEmail(c.getCorreoElectronico(), nombre, UsuarioEmailTemplate.prospectoAceptado(nombre, $"https://proyweb-1570850601368.web.app/", token));
+            }
             return c;
         }
-        public Cliente RegistrarNuevoCliente(RegistroRequest registro)
+        public Prospecto RegistrarNuevoCliente(string nombre, string primerApellido, string segundoApellido, string telefono, string correoElectronico, string direccion)
         {
             //TODO: modificarle parametros
-            Cliente nuevoCliente= new Cliente(registro.nombre, registro.primerApellido, registro.segundoApellido, registro.telefono, registro.correoElectronico, registro.direccion, $"{new Random().Next(10000000, 99999999)}");
-            db.RegistrarProspecto(nuevoCliente);
-            string email =  UsuarioEmailTemplate.bienvenidoProspecto($"{nuevoCliente.getNombre()} {nuevoCliente.getPrimerApellido()}", nuevoCliente.getToken(), "http://www.proyweb.com.mx");
-            EmailHelper.sendEmail(nuevoCliente.getCorreoElectronico(), $"{nuevoCliente.getNombre()} {nuevoCliente.getPrimerApellido()}", email);
+            Prospecto prospecto= new Prospecto(0,nombre, primerApellido, segundoApellido, telefono, direccion, correoElectronico,$"{new Random().Next(10000000, 99999999)}");
+            db.RegistrarProspecto(prospecto);
+            string email =  UsuarioEmailTemplate.bienvenidoProspecto($"{prospecto.getNombre()} {prospecto.getPrimerApellido()}", prospecto.getCodigoVerificacion(), "https://proyweb-1570850601368.web.app/");
+            EmailHelper.sendEmail(prospecto.getCorreoElectronico(), $"{prospecto.getNombre()} {prospecto.getPrimerApellido()}", email);
             // EmailHelper.sendSMSCodigoVerificacion(nuevoCliente.getTelefono(), nuevoCliente.getToken());
-            return nuevoCliente;
+            return prospecto;
         }
         public Cliente VerificarProspecto(string codigoVerificacion)
         {
@@ -110,9 +120,14 @@ namespace Mudanzas.Models
 
         public void OlvidoPassword(string correoElectronico)
         {
-            string token = JWTHelper.convertTokenUrl(correoElectronico);
-            db.OlvidoPassword(correoElectronico, token);
-            
+            Usuario usuario = db.BuscarUsuarioCorreo(correoElectronico);
+            if (usuario!=null) { 
+                string token = JWTHelper.convertTokenUrl(correoElectronico);
+                db.OlvidoPassword(correoElectronico, token);
+                string nombre = $"{usuario.getNombre()} {usuario.getPrimerApellido()}";
+                EmailHelper.sendEmail(usuario.getCorreoElectronico(), nombre, UsuarioEmailTemplate.cambioContrasena(nombre, $"https://proyweb-1570850601368.web.app/", token));
+            }
+
         }
     }
 }

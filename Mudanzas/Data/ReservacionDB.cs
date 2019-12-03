@@ -13,17 +13,96 @@ namespace Mudanzas.Data
     {
         public readonly SqlConnection db = ConexionDB.GetConnection();
 
-        // POST/ID Camion
+        public List<Reservacion> GetReservaciones()
+        {
+            //TODO: Obtener todas las Sedes
+            //Sede sede = List<Sede>;
+            List<Reservacion> reservaciones = new List<Reservacion>();
+            using (SqlCommand com = new SqlCommand($"SELECT * FROM Reservacion", db))
+            {
+                SqlDataReader reader = com.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        int folio = reader.GetInt32(0);
+                        string sedeOrigen= reader.GetString(1);
+                        string sedeDestino = reader.GetString(2);
+                        string fechaReservacion= reader.GetString(3);
+                        string tipoCamion= reader.GetString(4);
+                        string idCliente= reader.GetString(5);
+                        reservaciones.Add(new Reservacion(folio,sedeOrigen,sedeDestino,fechaReservacion,tipoCamion,idCliente));
+                    }
+                }
+                reader.Close();
+            }
+            return reservaciones;
+        }
+
+        public List<Reservacion> GetReservacionesPendientes()
+        {
+            List<Reservacion> reservaciones = new List<Reservacion>();
+            using (SqlCommand com = new SqlCommand($"SELECT s.folio, s.sedeOrigen, s.sedeDestino, s.fechaReservacion, s.tipoCamion, s.idCliente FROM Sede s", db))
+            {
+                SqlDataReader reader = com.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        int folio = reader.GetInt32(0);
+                        string sedeOrigen = reader.GetString(1);
+                        string sedeDestino = reader.GetString(2);
+                        string fechaReservacion = reader.GetString(3);
+                        string tipoCamion = reader.GetString(4);
+                        string idCliente = reader.GetString(5);
+                        reservaciones.Add(new Reservacion(folio, sedeOrigen, sedeDestino, fechaReservacion, tipoCamion, idCliente));
+                    }
+                }
+                reader.Close();
+            }
+            return reservaciones;
+        }
+
+        // POST/ID reservacion
         public void postExceso(int folio)
         {
 
             //string query = $"SP_ALTACAMIONES {folio}";
-            string query = $"EXEC SP_REGISTROEXCESO @Folio = {folio}";
+            string query = $"EXEC REGISTROEXCESO @Folio = {folio}";
             using (SqlCommand com = new SqlCommand(query, db))
             {
                 com.ExecuteNonQuery();
                 db.Close();
             }
+        }
+
+         // POST/ID reservacion
+       public string buscaDisponibilidad(string fecha, string sedeOrigen, string tipoCamion)
+        {
+     
+             return "GDE0001";
+        }
+        public double getCosto(int idSedeOrigen, int idSedeDestino)
+        {
+            //distancia = sp
+            double distancia = 32.20;
+            // Calcular el costo
+            decimal costo = 0;
+            using (SqlCommand com = new SqlCommand($"SELECT c.costo  FROM Costos c where CONCEPTO = 'Exceso' ", db))
+            {
+                SqlDataReader reader = com.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        costo = reader.GetDecimal(0);
+                    }
+                }
+                reader.Close();
+            }
+            // Operacion Costo
+         
+            return distancia * ((double) costo);
         }
 
 

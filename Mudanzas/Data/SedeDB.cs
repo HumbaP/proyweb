@@ -20,7 +20,7 @@ namespace Mudanzas.Data
         {
             //TODO: Obtener todas las Sedes
             //Sede sede = List<Sede>;
-            List<Sede> sede = new List<Sede>();
+            List<Sede> sedes = new List<Sede>();
             using (SqlCommand com = new SqlCommand($"SELECT * FROM Sede",db))
             { 
                 SqlDataReader reader = com.ExecuteReader();
@@ -36,12 +36,12 @@ namespace Mudanzas.Data
                         double longitud = reader.GetDouble(5);
                         string tipoSede = reader.GetString(6);
                         int pertence = reader.GetInt32(7);
-                        sede.Add(new Sede(id, alias, ciudad, estado, latitud, longitud, tipoSede, pertence));
+                        sedes.Add(new Sede(id, alias, ciudad, estado, latitud, longitud, tipoSede, pertence));
                     }
                 }   
-                reader.Close();
+                //reader.Close();
             }
-            return sede;
+            return sedes;
         }
 
         // GET/ID Sede
@@ -116,16 +116,56 @@ namespace Mudanzas.Data
                 com.Parameters.Add(new SqlParameter("@latitud", sede.latitud));
                 com.Parameters.Add(new SqlParameter("@longitud", sede.longitud));
                 com.Parameters.Add(new SqlParameter("@pertenece", sede.pertenece));
+                com.Parameters.Add(new SqlParameter("@idInsertado", SqlDbType.Int));
+                com.Parameters["@idInsertado"].Direction = ParameterDirection.Output;
+
+
                 SqlDataReader reader = com.ExecuteReader();
-                if (reader.RecordsAffected== 0)
+                if (reader.RecordsAffected > 0)
                 {
                     //Se hizo correctamente
-                    sede=null;
+                    sede.id = (int)com.Parameters["@idInsertado"].Value;
+                    if (sede.pertenece == 0)
+                        sede.pertenece = sede.id;
                 }
                 //TODO: Manejar el error cuando no se creo la sede
-                db.Close();
             }
             return sede;
+        }
+
+        public bool GuardarDistancias(List<DistanciaSede> distancias)
+        {
+            try
+            {
+                DataTable distanciasBulk = new DataTable();
+                distanciasBulk.Columns.Add("idSedeOrigen", typeof(string));
+                distanciasBulk.Columns.Add("idSedeDestino", typeof(string));
+                distanciasBulk.Columns.Add("distancia", typeof(float));
+                distanciasBulk.Columns.Add("tiempo", typeof(float));
+                DataRow row=null;
+                foreach (DistanciaSede dis in distancias)
+                {
+                    row = distanciasBulk.NewRow();
+                    row["idSedeOrigen"] = dis.getIdSedeOrigen();
+                    row["idSedeDestino"] = dis.getIdSedeDestino();
+                    row["distancia"] = dis.getDistancia();
+                    row["tiempo"] = dis.getTiempo();
+                    distanciasBulk.Rows.Add(row);
+                }
+
+                using (var bulk = new SqlBulkCopy(db))
+                {
+                    bulk.DestinationTableName = "DistanciaSede";
+                    bulk.WriteToServer(distanciasBulk);
+                }
+                return true;
+            }
+            catch (Exception e)
+            
+            {
+                return false;
+            }
+
         }
     }
 }

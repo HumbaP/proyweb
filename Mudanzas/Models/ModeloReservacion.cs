@@ -19,11 +19,30 @@ namespace Mudanzas.Models
         }
         
 
-        public void postExceso(ExcesoRequest registro)
+        
+        public void postExceso(int folioReservacion)
         {
-            
-            bd.postExceso(registro.folio);
+            bd.postExceso(folioReservacion);
         }
 
+        public List<Reservacion> obtenerReservaciones()
+        {
+            List<Reservacion> reservaciones = bd.GetReservaciones();
+            
+            return reservaciones;
+        }
+
+        public double especificaReservacion(ReservacionRequest informacion)
+        {
+            double precio = 1;
+            string disponible = bd.buscaDisponibilidad(informacion.fechaReservacion, informacion.sedeOrigen, informacion.tipoCamion );
+            if(disponible != "NULL" )
+            {
+                //precio = bd.getCosto(informacion.sedeOrigen,informacion.sedeDestino);
+                precio = bd.getCosto(1,2);
+
+            }
+            return precio;
+        }
     }
 }

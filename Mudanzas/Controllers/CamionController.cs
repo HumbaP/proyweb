@@ -16,7 +16,7 @@ namespace Mudanzas.Controllers
     [ApiController]
     public class CamionController : ControllerBase
     {
-        ModeloCamion modelo;
+        ModeloCamion modelo;    
         public CamionController()
         {
             modelo = new ModeloCamion();
@@ -40,7 +40,7 @@ namespace Mudanzas.Controllers
         [HttpPost]
         public async Task<ActionResult<Camion>> CamionRegistro([FromBody]CamionRequest registro)
         {
-            Camion camion = modelo.RegistrarNuevoCamion(registro);
+            Camion camion = modelo.RegistrarNuevoCamion(registro.kilometraje, registro.kilometrajeUltimoServicio, registro.capacidadPeso, registro.tipoCamion, registro.tipoCombustible, registro.volumen, registro. placas);
 
             return camion;
         }

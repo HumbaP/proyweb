@@ -19,7 +19,7 @@ namespace Mudanzas.Controllers
         [HttpPost("/chofer/login")]
         public async Task<ActionResult<LoginResponse>> DoChoferLogin([FromBody]LoginRequest login)
         {
-            Usuario usuario = modelo.AutenticarChofer(login);
+            Usuario usuario = modelo.AutenticarChofer(login.correoElectronico, login.password);
             if (usuario != null)
             {
                 return new LoginResponse(usuario);
@@ -29,14 +29,14 @@ namespace Mudanzas.Controllers
         [HttpPost("/chofer/registro")]
         public async Task<ActionResult<Chofer>> RegistrarChofer([FromBody] RegistroChoferRequest registroRequest)
         {
-            Chofer chofer = modelo.RegistrarChofer(registroRequest);
+            Chofer chofer = modelo.RegistrarChofer(registroRequest.nombre, registroRequest.primerApellido, registroRequest.segundoApellido, registroRequest.telefono, registroRequest.correoElectronico, EncryptHelper.encryptString(registroRequest.password));
             return chofer;
         }
 
         [HttpPost("/admin/login")]
         public async Task<ActionResult<LoginResponse>> DoAdminLogin([FromBody]LoginRequest login)
         {
-            Usuario usuario = modelo.AutenticarAdmin(login);
+            Usuario usuario = modelo.AutenticarAdmin(login.correoElectronico, login.password);
             if (usuario != null)
             {
                 return new LoginResponse(usuario);
@@ -48,14 +48,14 @@ namespace Mudanzas.Controllers
         [HttpPost("/admin/registro")]
         public async Task<ActionResult<Administrador>> RegistrarAdmin([FromBody] RegistroAdminRequest registroRequest)
         {
-            Administrador admin = modelo.RegistrarAdmin(registroRequest);
+            Administrador admin = modelo.RegistrarAdmin(registroRequest.nombre, registroRequest.primerApellido, registroRequest.segundoApellido, EncryptHelper.encryptString(registroRequest.password), registroRequest.correoElectronico, registroRequest.telefono, registroRequest.idSede);
             return admin;
         }
 
         [HttpPost("/cliente/login")]
         public async Task<ActionResult<LoginResponse>> DoClienteLogin([FromBody]LoginRequest login)
         {
-            Usuario usuario = modelo.AutenticarCliente(login);
+            Usuario usuario = modelo.AutenticarCliente(login.correoElectronico, login.password);
             if (usuario != null)
             {
                 return new LoginResponse(usuario);
@@ -64,12 +64,19 @@ namespace Mudanzas.Controllers
         }
 
         [HttpPost("/prospecto/registro")]
-        public async Task<ActionResult<Usuario>> ProspectoRegistro([FromBody]RegistroRequest registro)
+        public async Task<ActionResult<Prospecto>> ProspectoRegistro([FromBody]RegistroRequest registro)
         {
-           Cliente cliente =  modelo.RegistrarNuevoCliente(registro);
+           Prospecto prospecto =  modelo.RegistrarNuevoCliente(registro.nombre, registro.primerApellido, registro.segundoApellido, registro.telefono, registro.correoElectronico, registro.direccion);
 
-            return cliente;
+            return prospecto;
         }
+        [HttpGet("/prospecto")]
+        public async Task<ActionResult<List<ProspectoResponse>>> GetProspectos()
+        {
+            List<Prospecto> prospectos = modelo.GetProspectos();
+            return ProspectoResponse.ConvertProspectosToResponse(prospectos);
+        }
+
         //Metodo para verificar que no es un robot y que proceda
         [HttpPost("/prospecto/verificar")]
         public async Task<ActionResult<Usuario>> VerificarRegistro([FromBody]VerificacionRequest verificacion)
@@ -85,7 +92,7 @@ namespace Mudanzas.Controllers
         {
 
             Cliente cliente = null;
-            cliente = modelo.RegistrarCliente(clienteRequest.prospectoId);
+            cliente = modelo.RegistrarCliente(clienteRequest.prospectoId,clienteRequest.aceptado);
             if (cliente != null)
             {
                 //Enviar correo
