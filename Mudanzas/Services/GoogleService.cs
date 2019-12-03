@@ -25,7 +25,7 @@ namespace Mudanzas.Services
             DistanciaSede distancia = null;
                         using (var client = new HttpClient())
             {
-                var result = await client.GetAsync($"https://maps.googleapis.com/maps/api/distancematrix/json?origins={origen.latitud},{origen.longitud}&destinations={destino.latitud},{origen.longitud}&mode=transitg&key={KEY}");
+                var result = await client.GetAsync($"https://maps.googleapis.com/maps/api/distancematrix/json?origins={origen.getLatitud()},{origen.getLongitud()}&destinations={destino.getLatitud()},{origen.getLongitud()}&mode=transitg&key={KEY}");
                 string tt = await result.Content.ReadAsStringAsync();
                 tt = tt.Replace("\n", "");
                 tt = tt.Replace("\"", "'");
@@ -34,7 +34,7 @@ namespace Mudanzas.Services
                 Google g = (Google)serializer.Deserialize(new JTokenReader(d), typeof(Google));
                 if (g.rows[0].elements[0].status != "OK")
                     return null;
-                distancia = new DistanciaSede(origen.id, destino.id,g.rows[0].elements[0].distance.value, g.rows[0].elements[0].duration.value);
+                distancia = new DistanciaSede(origen.getId(), destino.getId(),g.rows[0].elements[0].distance.value, g.rows[0].elements[0].duration.value);
             }
             return distancia;
         }
