@@ -16,14 +16,14 @@ namespace Mudanzas.Helpers.Requests
 
         public SedeRequest(Sede sede)
         {
-            this.id = sede.id;
-            this.alias = sede.alias;
-            this.ciudad = sede.ciudad;
-            this.estado = sede.estado;
-            this.latitud = sede.latitud;
-            this.longitud = sede.longitud;
-            this.tipoSede = sede.tipoSede;
-            this.pertenece = sede.pertenece;
+            this.id = sede.getId();
+            this.alias = sede.getAlias();
+            this.ciudad = sede.getCiudad();
+            this.estado = sede.getEstado();
+            this.latitud = sede.getLatitud();
+            this.longitud = sede.getLongitud();
+            this.tipoSede = sede.getTipoSede();
+            this.pertenece = sede.getPertenece();
         }
 
         public int id { get; set; }

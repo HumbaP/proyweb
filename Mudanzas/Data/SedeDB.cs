@@ -110,12 +110,12 @@ namespace Mudanzas.Data
             using (SqlCommand com = new SqlCommand("SP_ALTASEDES", db))
             {
                 com.CommandType = CommandType.StoredProcedure;
-                com.Parameters.Add(new SqlParameter("@alias", sede.alias));
-                com.Parameters.Add(new SqlParameter("@ciudad", sede.ciudad));
-                com.Parameters.Add(new SqlParameter("@estado", sede.estado));
-                com.Parameters.Add(new SqlParameter("@latitud", sede.latitud));
-                com.Parameters.Add(new SqlParameter("@longitud", sede.longitud));
-                com.Parameters.Add(new SqlParameter("@pertenece", sede.pertenece));
+                com.Parameters.Add(new SqlParameter("@alias", sede.getAlias()));
+                com.Parameters.Add(new SqlParameter("@ciudad", sede.getCiudad()));
+                com.Parameters.Add(new SqlParameter("@estado", sede.getEstado()));
+                com.Parameters.Add(new SqlParameter("@latitud", sede.getLatitud()));
+                com.Parameters.Add(new SqlParameter("@longitud", sede.getLongitud()));
+                com.Parameters.Add(new SqlParameter("@pertenece", sede.getPertenece()));
                 com.Parameters.Add(new SqlParameter("@idInsertado", SqlDbType.Int));
                 com.Parameters["@idInsertado"].Direction = ParameterDirection.Output;
 
@@ -124,9 +124,9 @@ namespace Mudanzas.Data
                 if (reader.RecordsAffected > 0)
                 {
                     //Se hizo correctamente
-                    sede.id = (int)com.Parameters["@idInsertado"].Value;
-                    if (sede.pertenece == 0)
-                        sede.pertenece = sede.id;
+                    sede.setId((int)com.Parameters["@idInsertado"].Value);
+                    if (sede.getPertenece() == 0)
+                        sede.setPertenece(sede.getId());
                 }
                 //TODO: Manejar el error cuando no se creo la sede
             }

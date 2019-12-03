@@ -75,7 +75,7 @@ namespace Mudanzas.Data
         public Camion RegistrarCamion(Camion camion)
         {
             // string query = $"INSERT INTO CAMION (nombre, primerApellido, segundoApellido, telefono, correoElectronico, direccion, codigoVerificacion) VALUES('{cliente.getNombre()}', '{cliente.getPrimerApellido()}', '{cliente.getSegundoApellido()}', '{cliente.getTelefono()}', '{cliente.getCorreoElectronico()}', '{cliente.getDireccion()}', '{cliente.getToken()}')";
-            string query = $"SP_ALTACAMIONES '{camion.tipoCamion}',{camion.kilometraje}, {camion.capacidadPeso}, '{camion.tipoCombustible}',{camion.volumen}, '{camion.placas}'";
+            string query = $"SP_ALTACAMIONES '{camion.getTipoCamion()}',{camion.getKilometraje()}, {camion.getKilometrajeUltimoServicio()}, {camion.getCapacidadPeso()}, '{camion.getTipoCombustible()}',{camion.getVolumen()}, '{camion.getPlacas()}'";
             using (SqlCommand com = new SqlCommand(query, db))
             {
                 com.ExecuteNonQuery();
